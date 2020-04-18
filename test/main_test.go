@@ -36,6 +36,7 @@ func Test_emojiTable(t *testing.T) {
 	}{
 		{'r', false},
 		{'2', true}, // numbers are part of emoji 🤔
+		{'#', true}, // # is part of emoji 🤔
 		{' ', false},
 		{'\n', false},
 		{'{', false},
@@ -103,6 +104,7 @@ func Test_emojiTable(t *testing.T) {
 		{'🔵', true},
 		{'🔺', true},
 		{'🏳', true},
+		{'🇦', true},
 	}
 
 	for _, tt := range tests {
