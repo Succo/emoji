@@ -31,6 +31,8 @@ const termTag = 0xE007F
 // tag_modifier :=
 //   [\x{E0020}-\x{E007E}]+ \x{E007F}
 //
+// There should not be false negative (glyph wrongly detected as an emoji)
+// There is false positive such inexistant flag indicator
 func PossibleGlyph(s string) bool {
 	r1, n1 := utf8.DecodeRuneInString(s)
 	if n1 == 0 {

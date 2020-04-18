@@ -3,6 +3,7 @@ package emoji
 import "testing"
 
 var notEmojiTest = []string{
+	"",
 	"a",
 	"😀b",
 	"b😀",
@@ -19,9 +20,12 @@ var notEmojiTest = []string{
 	"🏼",
 	"2",
 	"#",
+	string(0x200D),
 }
 
 var emojiTest = []string{
+	"©️",
+	"⏏️",
 	"😀",
 	"👍",
 	"⛰️",
@@ -85,6 +89,8 @@ var emojiTest = []string{
 	"👋🏼",
 	"🖖🏿",
 	"🦻🏻",
+	"👨‍🦰",
+	"👩🏼‍🦰",
 	"🧏🏼‍♀️",
 	"🧜🏼‍♀️",
 	"🧝🏼‍♀️",
