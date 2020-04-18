@@ -26,91 +26,108 @@ func Test_emojiTable_is_sorted(t *testing.T) {
 	}
 }
 
+var nonEmoji = []rune{
+	'r',
+	' ',
+	'\n',
+	'{',
+	'ç',
+	'ğ',
+	'ş',
+}
+
+var emojiNonPictographic = []rune{
+	'2',
+	'#',
+	'*',
+	'🇦',
+}
+
+var emojiPictographic = []rune{
+	'😀',
+	'😇',
+	'😜',
+	'😔',
+	'🥶',
+	'😨',
+	'🤡',
+	'😿',
+	'💙',
+	'✋',
+	'🤝',
+	'🫀',
+	'🧑',
+	'🧝',
+	'🚵',
+	'🐘',
+	'🌸',
+	'🥔',
+	'🍗',
+	'🥫',
+	'🦑',
+	'🏪',
+	'🚄',
+	'🛬',
+	'🕛',
+	'🌘',
+	'🌪',
+	'🧨',
+	'🥇',
+	'🎱',
+	'👕',
+	'🥿',
+	'💄',
+	'🔕',
+	'🎸',
+	'📟',
+	'📸',
+	'🗞',
+	'📇',
+	'🔑',
+	'🏹',
+	'🧰',
+	'🧬',
+	'🚪',
+	'🚭',
+	'⤵',
+	'✡',
+	'♊',
+	'🔁',
+	'📴',
+	'⚧',
+	'❓',
+	'🔱',
+	'❇',
+	'🆎',
+	'🆚',
+	'🈸',
+	'🔵',
+	'🔺',
+	'🏳',
+}
+
 func Test_emojiTable(t *testing.T) {
-	var tests = []struct {
-		in  rune
-		out bool
-	}{
-		// those counts as emoji for keycap sequences
-		{'2', true},
-		{'#', true},
-		{'*', true},
-
-		{'r', false},
-		{' ', false},
-		{'\n', false},
-		{'{', false},
-		{'ç', false},
-		{'ğ', false},
-		{'ş', false},
-
-		{'😀', true},
-		{'😇', true},
-		{'😜', true},
-		{'😔', true},
-		{'🥶', true},
-		{'😨', true},
-		{'🤡', true},
-		{'😿', true},
-		{'💙', true},
-		{'✋', true},
-		{'🤝', true},
-		{'🫀', true},
-		{'🧑', true},
-		{'🧝', true},
-		{'🚵', true},
-		{'🐘', true},
-		{'🌸', true},
-		{'🥔', true},
-		{'🍗', true},
-		{'🥫', true},
-		{'🦑', true},
-		{'🏪', true},
-		{'🚄', true},
-		{'🛬', true},
-		{'🕛', true},
-		{'🌘', true},
-		{'🌪', true},
-		{'🧨', true},
-		{'🥇', true},
-		{'🎱', true},
-		{'👕', true},
-		{'🥿', true},
-		{'💄', true},
-		{'🔕', true},
-		{'🎸', true},
-		{'📟', true},
-		{'📸', true},
-		{'🗞', true},
-		{'📇', true},
-		{'🔑', true},
-		{'🏹', true},
-		{'🧰', true},
-		{'🧬', true},
-		{'🚪', true},
-		{'🚭', true},
-		{'⤵', true},
-		{'✡', true},
-		{'♊', true},
-		{'🔁', true},
-		{'📴', true},
-		{'⚧', true},
-		{'❓', true},
-		{'🔱', true},
-		{'❇', true},
-		{'🆎', true},
-		{'🆚', true},
-		{'🈸', true},
-		{'🔵', true},
-		{'🔺', true},
-		{'🏳', true},
-		{'🇦', true},
-	}
-
-	for _, tt := range tests {
-		if unicode.Is(Emoji, tt.in) != tt.out {
-			t.Errorf("got %t for %q code %X", !tt.out, tt.in, tt.in)
+	for _, r := range nonEmoji {
+		if unicode.Is(Emoji, r) {
+			t.Errorf("%q code %X is counted as an emoji", r, r)
 		}
 	}
 
+	for _, r := range emojiNonPictographic {
+		if !unicode.Is(Emoji, r) {
+			t.Errorf("%q code %X is not counted as an emoji", r, r)
+		}
+		if unicode.Is(ExtendedPictographic, r) {
+			t.Errorf("%q code %X is counted as pictographic", r, r)
+		}
+	}
+
+	for _, r := range emojiPictographic {
+		if !unicode.Is(Emoji, r) {
+			t.Errorf("%q code %X is not counted as an emoji", r, r)
+		}
+		if !unicode.Is(ExtendedPictographic, r) {
+			t.Errorf("%q code %X is not counted as pictographic", r, r)
+		}
+	}
 }
