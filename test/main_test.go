@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 	"unicode"
 
@@ -11,17 +10,21 @@ import (
 
 func Test_emojiTable_is_sorted(t *testing.T) {
 	for _, table := range []*unicode.RangeTable{emoji.Emoji, emoji.EmojiPresentation, emoji.EmojiModifier, emoji.EmojiModifierBase, emoji.EmojiComponent, emoji.ExtendedPictographic} {
-		if !sort.SliceIsSorted(table.R16, func(i, j int) bool { return table.R16[i].Lo < table.R16[i].Lo }) {
-			t.Errorf("table.R16 not sorted for Lo")
+		for i, r := range table.R16 {
+			if r.Lo > r.Hi {
+				t.Errorf("table.R16 wrong range for table")
+			}
+			if i+1 < len(table.R16) && table.R16[i+1].Lo <= r.Hi {
+				t.Errorf("table.R16 overlap")
+			}
 		}
-		if !sort.SliceIsSorted(table.R16, func(i, j int) bool { return table.R16[i].Hi < table.R16[i].Hi }) {
-			t.Errorf("table.R16 not sorted for Hi")
-		}
-		if !sort.SliceIsSorted(table.R32, func(i, j int) bool { return table.R32[i].Lo < table.R32[i].Lo }) {
-			t.Errorf("table.R32 not sorted for Lo")
-		}
-		if !sort.SliceIsSorted(table.R32, func(i, j int) bool { return table.R32[i].Hi < table.R32[i].Hi }) {
-			t.Errorf("table.R32 not sorted for Hi")
+		for i, r := range table.R32 {
+			if r.Lo > r.Hi {
+				t.Errorf("table.R32 wrong range for table")
+			}
+			if i+1 < len(table.R32) && table.R32[i+1].Lo <= r.Hi {
+				t.Errorf("table.R32 overlap")
+			}
 		}
 	}
 }
