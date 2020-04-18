@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	fmt.Println(unicode.Is(emoji.Table, 'r'))
-	fmt.Println(unicode.Is(emoji.Table, '😀'))
+	fmt.Println(unicode.Is(emoji.Emoji, 'r'))
+	fmt.Println(unicode.Is(emoji.Emoji, '😀'))
 }

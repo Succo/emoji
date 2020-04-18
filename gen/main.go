@@ -18,7 +18,14 @@ func main() {
 		log.Fatalf("open emoji-data.txt %v", err)
 	}
 	reader := bufio.NewReader(data)
-	table := &unicode.RangeTable{}
+
+	emoji := &unicode.RangeTable{}
+	emojiPresentation := &unicode.RangeTable{}
+	emojiModifier := &unicode.RangeTable{}
+	emojiModifierBase := &unicode.RangeTable{}
+	emojiComponent := &unicode.RangeTable{}
+	extendedPictographic := &unicode.RangeTable{}
+
 	for {
 		l, err := reader.ReadString('\n')
 		if err == io.EOF {
@@ -34,25 +41,45 @@ func main() {
 		if len(l) == 0 {
 			continue
 		}
-
-		l = l[:strings.IndexRune(l, ';')]
+		split := strings.IndexRune(l, ';')
+		var property string
+		_, err = fmt.Sscanf(l[split+1:], "%s", &property)
+		if err != nil {
+			log.Fatalf("Sscanf property %q %v", l, err)
+		}
+		l = l[:split]
 		var lo uint32
 		var hi uint32
 		if strings.IndexRune(l, '.') != -1 {
 			n, err := fmt.Sscanf(l, "%X..%X", &lo, &hi)
-			if err != nil {
+			if err != nil || n != 2 {
 				log.Fatalf("Sscanf %q %v", l, err)
 			}
-			fmt.Println(l, lo, hi, n)
 		} else {
 			var codepoint uint32
 			n, err := fmt.Sscanf(l, "%X", &codepoint)
-			if err != nil {
+			if err != nil || n != 1 {
 				log.Fatalf("Sscanf %q %v", l, err)
 			}
-			fmt.Println(l, codepoint, n)
 			lo = codepoint
 			hi = codepoint
+		}
+		var table *unicode.RangeTable
+		switch property {
+		case "Emoji":
+			table = emoji
+		case "Emoji_Presentation":
+			table = emojiPresentation
+		case "Emoji_Modifier":
+			table = emojiModifier
+		case "Emoji_Modifier_Base":
+			table = emojiModifierBase
+		case "Emoji_Component":
+			table = emojiComponent
+		case "Extended_Pictographic#": // mising space in file
+			table = extendedPictographic
+		default:
+			log.Fatalf("unknown table %s", property)
 		}
 
 		if lo < maxR16 && hi > maxR16 {
@@ -77,12 +104,61 @@ func main() {
 
 import "unicode"
 
-var Table = `))
+`))
 	if err != nil {
 		log.Fatalf("Write %v", err)
 	}
 
-	_, err = fmt.Fprintf(res, "%#v\n", table)
+	_, err = res.Write([]byte("\nvar Emoji = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", emoji)
+	if err != nil {
+		log.Fatalf("Fprintf %v", err)
+	}
+
+	_, err = res.Write([]byte("\nvar EmojiPresentation = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", emojiPresentation)
+	if err != nil {
+		log.Fatalf("Fprintf %v", err)
+	}
+
+	_, err = res.Write([]byte("\nvar EmojiModifier = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", emojiModifier)
+	if err != nil {
+		log.Fatalf("Fprintf %v", err)
+	}
+
+	_, err = res.Write([]byte("\nvar EmojiModifierBase = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", emojiModifierBase)
+	if err != nil {
+		log.Fatalf("Fprintf %v", err)
+	}
+
+	_, err = res.Write([]byte("\nvar EmojiComponent = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", emojiComponent)
+	if err != nil {
+		log.Fatalf("Fprintf %v", err)
+	}
+
+	_, err = res.Write([]byte("\nvar ExtendedPictographic = "))
+	if err != nil {
+		log.Fatalf("Write %v", err)
+	}
+	_, err = fmt.Fprintf(res, "%#v\n", extendedPictographic)
 	if err != nil {
 		log.Fatalf("Fprintf %v", err)
 	}
