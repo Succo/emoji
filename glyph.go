@@ -73,7 +73,7 @@ func PossibleGlyph(s string) bool {
 				return true
 			}
 			n += n2
-		} else if unicode.Is(Tag, r2) {
+		} else if unicode.Is(Tag, r2) && r1 == '🏴' {
 			for unicode.Is(Tag, r2) {
 				r2, n2 = utf8.DecodeRuneInString(s[n:])
 				n += n2
