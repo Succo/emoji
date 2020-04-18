@@ -1,14 +1,12 @@
-package main
+package emoji
 
 import (
 	"testing"
 	"unicode"
-
-	"github.com/Succo/emoji"
 )
 
 func Test_emojiTable_is_sorted(t *testing.T) {
-	for _, table := range []*unicode.RangeTable{emoji.Emoji, emoji.EmojiPresentation, emoji.EmojiModifier, emoji.EmojiModifierBase, emoji.EmojiComponent, emoji.ExtendedPictographic} {
+	for _, table := range []*unicode.RangeTable{Emoji, EmojiPresentation, EmojiModifier, EmojiModifierBase, EmojiComponent, ExtendedPictographic} {
 		for i, r := range table.R16 {
 			if r.Lo > r.Hi {
 				t.Errorf("table.R16 wrong range for table")
@@ -110,7 +108,7 @@ func Test_emojiTable(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if unicode.Is(emoji.Emoji, tt.in) != tt.out {
+		if unicode.Is(Emoji, tt.in) != tt.out {
 			t.Errorf("got %t for %q code %X", !tt.out, tt.in, tt.in)
 		}
 	}
