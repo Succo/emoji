@@ -9,4 +9,5 @@ import (
 
 func main() {
 	fmt.Println(unicode.Is(emoji.Table, 'r'))
+	fmt.Println(unicode.Is(emoji.Table, '😀'))
 }
