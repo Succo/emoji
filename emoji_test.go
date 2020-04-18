@@ -123,7 +123,7 @@ var emojiComponentTest = []rune{
 	'6',
 	'*',
 	0xFE0F, // combining enclosing keycap
-	0x200D, // VARIATIOn SELECTOR-16
+	0x200D, // VARIATION SELECTOR-16
 	'🇦',
 	'🏼',
 }
