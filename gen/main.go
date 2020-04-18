@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("open emoji-data.txt %v", err)
 	}
 	reader := bufio.NewReader(data)
-	var table unicode.RangeTable
+	table := &unicode.RangeTable{}
 	for {
 		l, err := reader.ReadString('\n')
 		if err == io.EOF {
@@ -77,7 +77,7 @@ func main() {
 
 import "unicode"
 
-var table = `))
+var Table = `))
 	if err != nil {
 		log.Fatalf("Write %v", err)
 	}
