@@ -33,9 +33,12 @@ func Test_emojiTable(t *testing.T) {
 		in  rune
 		out bool
 	}{
+		// those counts as emoji for keycap sequences
+		{'2', true},
+		{'#', true},
+		{'*', true},
+
 		{'r', false},
-		{'2', true}, // numbers are part of emoji 🤔
-		{'#', true}, // # is part of emoji 🤔
 		{' ', false},
 		{'\n', false},
 		{'{', false},
