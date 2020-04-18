@@ -8,6 +8,7 @@ import (
 const zeroWidthJoiner = 0x200D
 const emojiVS = 0xFE0F
 const enclosingKeycap = 0x20E3
+const termTag = 0xE007F
 
 // PossibleGlyph checks is the given string might be an emoji
 // based on the EBNF from https://www.unicode.org/reports/tr51/#EBNF_and_Regex
@@ -67,6 +68,19 @@ func PossibleGlyph(s string) bool {
 				r2, n2 = r3, n3
 			}
 		} else if unicode.Is(EmojiModifier, r2) {
+			r2, n2 = utf8.DecodeRuneInString(s[n:])
+			if n2 == 0 {
+				return true
+			}
+			n += n2
+		} else if unicode.Is(Tag, r2) {
+			for unicode.Is(Tag, r2) {
+				r2, n2 = utf8.DecodeRuneInString(s[n:])
+				n += n2
+			}
+			if r2 != termTag {
+				return false
+			}
 			r2, n2 = utf8.DecodeRuneInString(s[n:])
 			if n2 == 0 {
 				return true
