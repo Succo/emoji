@@ -26,7 +26,7 @@ func Test_emojiTable_is_sorted(t *testing.T) {
 	}
 }
 
-var nonEmoji = []rune{
+var nonEmojiTest = []rune{
 	'r',
 	' ',
 	'\n',
@@ -36,14 +36,14 @@ var nonEmoji = []rune{
 	'ş',
 }
 
-var emojiNonPictographic = []rune{
+var emojiNonPictographicTest = []rune{
 	'2',
 	'#',
 	'*',
 	'🇦',
 }
 
-var emojiPictographic = []rune{
+var emojiPictographicTest = []rune{
 	'😀',
 	'😇',
 	'😜',
@@ -106,14 +106,36 @@ var emojiPictographic = []rune{
 	'🏳',
 }
 
+var emojiModifierTest = []rune{
+	'🏼',
+}
+
+var emojiModifierBaseTest = []rune{
+	'👰',
+	'🤡',
+	'😀',
+	'😇',
+	'😜',
+}
+
+var emojiComponentTest = []rune{
+	'🦰',
+	'6',
+	'*',
+	0xFE0F, // combining enclosing keycap
+	0x200D, // VARIATIOn SELECTOR-16
+	'🇦',
+	'🏼',
+}
+
 func Test_emojiTable(t *testing.T) {
-	for _, r := range nonEmoji {
+	for _, r := range nonEmojiTest {
 		if unicode.Is(Emoji, r) {
 			t.Errorf("%q code %X is counted as an emoji", r, r)
 		}
 	}
 
-	for _, r := range emojiNonPictographic {
+	for _, r := range emojiNonPictographicTest {
 		if !unicode.Is(Emoji, r) {
 			t.Errorf("%q code %X is not counted as an emoji", r, r)
 		}
@@ -122,12 +144,29 @@ func Test_emojiTable(t *testing.T) {
 		}
 	}
 
-	for _, r := range emojiPictographic {
+	for _, r := range emojiPictographicTest {
 		if !unicode.Is(Emoji, r) {
 			t.Errorf("%q code %X is not counted as an emoji", r, r)
 		}
 		if !unicode.Is(ExtendedPictographic, r) {
 			t.Errorf("%q code %X is not counted as pictographic", r, r)
+		}
+	}
+
+	for _, r := range emojiModifierTest {
+		if !unicode.Is(Emoji, r) {
+			t.Errorf("%q code %X is not counted as an emoji", r, r)
+		}
+		if !unicode.Is(EmojiModifier, r) {
+			t.Errorf("%q code %X is not counted as an emoji modifier", r, r)
+		}
+		if unicode.Is(ExtendedPictographic, r) {
+			t.Errorf("%q code %X is counted as pictographic", r, r)
+		}
+	}
+	for _, r := range emojiComponentTest {
+		if !unicode.Is(EmojiComponent, r) {
+			t.Errorf("%q code %X is not counted as an emoji component", r, r)
 		}
 	}
 }
