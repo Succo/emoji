@@ -8,7 +8,7 @@ import (
 	"github.com/Succo/countrymoji"
 )
 
-func RegionalIndicator_Test(t *testing.T) {
+func Test_RegionalIndicator_Test(t *testing.T) {
 	for _, c := range "abcdefghijklmnopqrstuvwxyz" {
 		r, _ := utf8.DecodeRuneInString(countrymoji.Alpha2ToFlag(string(c)))
 		if !unicode.Is(RegionalIndicator, r) {
