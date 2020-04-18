@@ -49,7 +49,6 @@ func PossibleGlyph(s string) bool {
 		if n2 == 0 {
 			return true
 		}
-
 		n += n2
 
 		if r2 == emojiVS {
@@ -67,7 +66,7 @@ func PossibleGlyph(s string) bool {
 			} else {
 				r2, n2 = r3, n3
 			}
-		} else if unicode.Is(EmojiModifier, r2) {
+		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
 			r2, n2 = utf8.DecodeRuneInString(s[n:])
 			if n2 == 0 {
 				return true
