@@ -47,7 +47,7 @@ func PossibleGlyph(s string) bool {
 	for unicode.Is(Emoji, r1) {
 		r2, n2 := utf8.DecodeRuneInString(s[n:])
 		if n2 == 0 {
-			return true
+			return unicode.Is(ExtendedPictographic, r1)
 		}
 		n += n2
 

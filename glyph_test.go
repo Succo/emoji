@@ -16,6 +16,9 @@ var notEmojiTest = []string{
 	"🏴" + string(0xE0031) + string(0xE004F),
 	"⛰️🏼",
 	"🏥🏼",
+	"🏼",
+	"2",
+	"#",
 }
 
 var emojiTest = []string{
