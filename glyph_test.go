@@ -1,6 +1,9 @@
 package emoji
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 var notEmojiTest = []string{
 	"",
@@ -173,5 +176,29 @@ func Test_Decode(t *testing.T) {
 				t.Errorf("Decode(%q) returned incoherent len full string but %q (%X != %X)", s2, s[n:], s2, s[n:])
 			}
 		}
+	}
+}
+
+func Test_DecodeCanReadAText(t *testing.T) {
+	text := strings.Join(emojiTest, "test phrase")
+	var b strings.Builder
+	for {
+		g, ok, n := Decode(text)
+		if n == 0 {
+			break
+		}
+		if ok {
+			b.WriteString(" " + g + " ")
+		} else {
+			b.WriteString(g)
+		}
+		text = text[n:]
+	}
+	emojiWithSpace := make([]string, len(emojiTest))
+	for i, e := range emojiTest {
+		emojiWithSpace[i] = " " + e + " "
+	}
+	if b.String() != strings.Join(emojiWithSpace, "test phrase") {
+		t.Errorf("Got :\n%q\nExpected :\n%q", b.String(), strings.Join(emojiWithSpace, "test phrase"))
 	}
 }
