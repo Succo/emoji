@@ -132,3 +132,27 @@ func Test_PossibleGlyph(t *testing.T) {
 		}
 	}
 }
+
+func Test_Decode(t *testing.T) {
+	for _, s := range notEmojiTest {
+		g, ok, n := Decode(s)
+		if ok && !PossibleGlyph(g) {
+			t.Errorf("Decode(%q) returned positive %q", s, g)
+		}
+		if len(g) != n {
+			t.Errorf("Decode(%q) returned incoherent len", s)
+		}
+	}
+
+	for _, s := range emojiTest {
+		if !PossibleGlyph(s) {
+			t.Errorf("%q returned negative", s)
+		}
+		if PossibleGlyph(s + "a") {
+			t.Errorf("%q returned positive", s+"a")
+		}
+		if PossibleGlyph(s + s) {
+			t.Errorf("%q returned positive", s+s)
+		}
+	}
+}
