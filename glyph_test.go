@@ -124,5 +124,11 @@ func Test_PossibleGlyph(t *testing.T) {
 		if !PossibleGlyph(s) {
 			t.Errorf("%q returned negative", s)
 		}
+		if PossibleGlyph(s + "a") {
+			t.Errorf("%q returned positive", s+"a")
+		}
+		if PossibleGlyph(s + s) {
+			t.Errorf("%q returned positive", s+s)
+		}
 	}
 }

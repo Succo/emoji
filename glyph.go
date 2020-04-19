@@ -43,7 +43,7 @@ func PossibleGlyph(s string) bool {
 		if n2 == 0 {
 			return false
 		}
-		return unicode.Is(RegionalIndicator, r2)
+		return unicode.Is(RegionalIndicator, r2) && len(s) == n1+n2
 	}
 	n := n1
 	for unicode.Is(Emoji, r1) {
