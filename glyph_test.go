@@ -145,9 +145,17 @@ func Test_Decode(t *testing.T) {
 	}
 
 	for _, s := range emojiTest {
-		if !PossibleGlyph(s) {
-			t.Errorf("%q returned negative", s)
+		g, ok, n := Decode(s)
+		if !ok {
+			t.Errorf("Decode(%q) returned negative %q ", s, g)
 		}
+		if g != s {
+			t.Errorf("Decode(%q) returned not the full string but %q (%X != %X)", s, g, s, g)
+		}
+		if len(g) != n {
+			t.Errorf("Decode(%q) returned incoherent len", s)
+		}
+		g, ok, n = Decode(s + "a")
 		if PossibleGlyph(s + "a") {
 			t.Errorf("%q returned positive", s+"a")
 		}
