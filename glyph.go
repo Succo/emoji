@@ -105,3 +105,26 @@ func Decode(s string) (string, bool, int) {
 	}
 	return s[:n], false, n
 }
+
+// Find returns the n first emoji in s
+// of all of thems if n == -1
+func Find(s string, max int) []string {
+	emojis := []string{}
+	if max == 0 {
+		return emojis
+	}
+	for {
+		g, ok, n := Decode(s)
+		if n == 0 {
+			break
+		}
+		if ok {
+			emojis = append(emojis, g)
+			if len(emojis) == max {
+				return emojis
+			}
+		}
+		s = s[n:]
+	}
+	return emojis
+}

@@ -202,3 +202,27 @@ func Test_DecodeCanReadAText(t *testing.T) {
 		t.Errorf("Got :\n%q\nExpected :\n%q", b.String(), strings.Join(emojiWithSpace, "test phrase"))
 	}
 }
+
+func Test_Find(t *testing.T) {
+	text := strings.Join(emojiTest, "test phrase")
+	for n := range emojiTest {
+		found := Find(text, n)
+		if len(found) != n {
+			t.Errorf("Find wrong len %d not %d", len(found), n)
+		}
+		for i, s := range emojiTest[:n] {
+			if s != found[i] {
+				t.Errorf("Find wrong %d result, %q not  %q", i, found[i], s)
+			}
+		}
+	}
+	found := Find(text, -1)
+	if len(found) != len(emojiTest) {
+		t.Errorf("Find wrong len %d not %d", len(found), len(emojiTest))
+	}
+	for i, s := range emojiTest {
+		if s != found[i] {
+			t.Errorf("Find wrong %d result, %q not  %q", i, found[i], s)
+		}
+	}
+}
