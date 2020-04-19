@@ -3,6 +3,10 @@ package emoji
 import (
 	"strings"
 	"testing"
+	"unicode"
+
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 var notEmojiTest = []string{
@@ -136,6 +140,24 @@ func Test_PossibleGlyph(t *testing.T) {
 	}
 }
 
+func Test_unicodeTransform(t *testing.T) {
+	isMn := func(r rune) bool {
+		return unicode.Is(unicode.Mn, r) && r != emojiVS
+	}
+	tr := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	for _, s := range emojiTest {
+		b := make([]byte, len(s))
+		n, _, _ := tr.Transform(b, []byte(s), true)
+		o := string(b[:n])
+		if o != s {
+			t.Errorf("%q != %q %X != %X", o, s, o, s)
+		}
+		if !PossibleGlyph(o) {
+			t.Errorf("%q returned negative", o)
+		}
+	}
+}
+
 func Test_Decode(t *testing.T) {
 	for _, s := range notEmojiTest {
 		g, ok, n := Decode(s)
@@ -224,5 +246,30 @@ func Test_Find(t *testing.T) {
 		if s != found[i] {
 			t.Errorf("Find wrong %d result, %q not  %q", i, found[i], s)
 		}
+	}
+}
+
+func Test_Replace(t *testing.T) {
+	text := strings.Join(emojiTest, "test phrase")
+	for n := range emojiTest {
+		replaced := Replace(text, n, func(s string) string { return ";" + s + "|" })
+		emojiEdited := make([]string, len(emojiTest))
+		copy(emojiEdited, emojiTest)
+		for i, e := range emojiTest[:n] {
+			emojiEdited[i] = ";" + e + "|"
+		}
+		expected := strings.Join(emojiEdited, "test phrase")
+		if replaced != expected {
+			t.Errorf("Replace error %q not %q", replaced, expected)
+		}
+	}
+	emojiEdited := make([]string, len(emojiTest))
+	for i, e := range emojiTest {
+		emojiEdited[i] = ";" + e + "|"
+	}
+	replaced := Replace(text, -1, func(s string) string { return ";" + s + "|" })
+	expected := strings.Join(emojiEdited, "test phrase")
+	if replaced != expected {
+		t.Errorf("Replace error %q not %q", replaced, expected)
 	}
 }

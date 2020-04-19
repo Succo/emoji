@@ -1,6 +1,7 @@
 package emoji
 
 import (
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -107,7 +108,7 @@ func Decode(s string) (string, bool, int) {
 }
 
 // Find returns the n first emoji in s
-// of all of thems if n == -1
+// of all of thems if max == -1
 func Find(s string, max int) []string {
 	emojis := []string{}
 	if max == 0 {
@@ -127,4 +128,35 @@ func Find(s string, max int) []string {
 		s = s[n:]
 	}
 	return emojis
+}
+
+// Replace replace the n first all emoji with f(s)
+// of all of thems if max == -1
+func Replace(s string, max int, f func(string) string) string {
+	if max == 0 {
+		return s
+	}
+	if len(Find(s, max)) == 0 {
+		return s
+	}
+	var b strings.Builder
+	var count int
+	for {
+		g, ok, n := Decode(s)
+		s = s[n:]
+		if n == 0 {
+			break
+		}
+		if ok {
+			b.WriteString(f(g))
+			count++
+			if count == max {
+				b.WriteString(s)
+				return b.String()
+			}
+		} else {
+			b.WriteString(g)
+		}
+	}
+	return b.String()
 }
