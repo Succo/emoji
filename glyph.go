@@ -11,7 +11,7 @@ const emojiVS = 0xFE0F
 const enclosingKeycap = 0x20E3
 const termTag = 0xE007F
 
-// PossibleGlyph checks is the given string might be an emoji
+// PossibleGlyphString checks is the given string might be an emoji
 // based on the EBNF from https://www.unicode.org/reports/tr51/#EBNF_and_Regex
 //
 // possible_emoji :=
@@ -34,15 +34,15 @@ const termTag = 0xE007F
 //
 // There should not be false negative (glyph wrongly detected as an emoji)
 // There is false positive such inexistant flag indicator
-func PossibleGlyph(s string) bool {
-	g, ok, _ := Decode(s)
+func PossibleGlyphString(s string) bool {
+	g, ok, _ := DecodeString(s)
 	return ok && g == s
 }
 
-// Decode returns
+// DecodeString returns
 // - the first complete emoji, true, and it's width in bytes is available
 // - the full non emoji sequence, false and it's width in bytes (might be a rune or multiples in case of malformed emoji)
-func Decode(s string) (string, bool, int) {
+func DecodeString(s string) (string, bool, int) {
 	r1, n1 := utf8.DecodeRuneInString(s)
 	if n1 == 0 {
 		return "", false, 0
@@ -107,15 +107,15 @@ func Decode(s string) (string, bool, int) {
 	return s[:n], false, n
 }
 
-// Find returns the n first emoji in s
+// FindString returns the n first emoji in s
 // of all of thems if max == -1
-func Find(s string, max int) []string {
+func FindString(s string, max int) []string {
 	emojis := []string{}
 	if max == 0 {
 		return emojis
 	}
 	for {
-		g, ok, n := Decode(s)
+		g, ok, n := DecodeString(s)
 		if n == 0 {
 			break
 		}
@@ -130,19 +130,19 @@ func Find(s string, max int) []string {
 	return emojis
 }
 
-// Replace replace the n first all emoji with f(s)
+// ReplaceString replace the n first all emoji with f(s)
 // of all of thems if max == -1
-func Replace(s string, max int, f func(string) string) string {
+func ReplaceString(s string, max int, f func(string) string) string {
 	if max == 0 {
 		return s
 	}
-	if len(Find(s, max)) == 0 {
+	if len(FindString(s, max)) == 0 {
 		return s
 	}
 	var b strings.Builder
 	var count int
 	for {
-		g, ok, n := Decode(s)
+		g, ok, n := DecodeString(s)
 		s = s[n:]
 		if n == 0 {
 			break
