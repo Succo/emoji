@@ -82,7 +82,7 @@ func Decode(b []byte) ([]byte, bool, int) {
 			if n2 == 0 {
 				return b[:n], true, n
 			}
-		} else if unicode.Is(Tag, r2) && r1 == '🏴' {
+		} else if r1 == '🏴' && unicode.Is(Tag, r2) {
 			for unicode.Is(Tag, r2) {
 				r2, n2 = utf8.DecodeRune(b[n:])
 				n += n2

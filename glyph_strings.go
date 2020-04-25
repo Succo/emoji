@@ -77,7 +77,7 @@ func DecodeString(s string) (string, bool, int) {
 			if n2 == 0 {
 				return s[:n], true, n
 			}
-		} else if unicode.Is(Tag, r2) && r1 == '🏴' {
+		} else if r1 == '🏴' && unicode.Is(Tag, r2) {
 			for unicode.Is(Tag, r2) {
 				r2, n2 = utf8.DecodeRuneInString(s[n:])
 				n += n2
