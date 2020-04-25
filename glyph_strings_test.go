@@ -1,6 +1,7 @@
 package emoji
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"unicode"
@@ -272,4 +273,13 @@ func Test_ReplaceString(t *testing.T) {
 	if replaced != expected {
 		t.Errorf("ReplaceString error %q not %q", replaced, expected)
 	}
+}
+
+func Benchmark_FindString(b *testing.B) {
+	var n int
+	for i := 0; i < b.N; i++ {
+		l := FindString("0⛱️1☎️2🙍‍♂️3👩🏾‍👨🏾‍👦🏾4🇭🇲5🏴󠁧󠁢󠁳󠁣󠁴󠁿6789", -1)
+		n += len(l)
+	}
+	fmt.Println(n)
 }
