@@ -145,7 +145,7 @@ func Test_Replace(t *testing.T) {
 	}
 }
 
-func Benchmark_Find(b *testing.B) {
+func Benchmark_Findb(b *testing.B) {
 	var n int
 	s := []byte("0⛱️1☎️2🙍‍♂️3👩🏾‍👨🏾‍👦🏾4🇭🇲5🏴󠁧󠁢󠁳󠁣󠁴󠁿6789")
 	for i := 0; i < b.N; i++ {
