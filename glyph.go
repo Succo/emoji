@@ -75,7 +75,7 @@ func Decode(b []byte) ([]byte, bool, int) {
 			if n2 == 0 {
 				return b[:n], true, n
 			}
-		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
+		} else if isEmod(r2) && unicode.Is(EmojiModifierBase, r1) {
 			n += n2
 			r2, n2 = utf8.DecodeRune(b[n:])
 			if n2 == 0 {
@@ -158,4 +158,9 @@ func Replace(b []byte, max int, f func([]byte) []byte) []byte {
 		}
 	}
 	return buf.Bytes()
+}
+
+func isEmod(r rune) bool {
+	u := uint32(r)
+	return EmojiModifier.R32[0].Lo <= u && u <= EmojiModifier.R32[0].Hi
 }

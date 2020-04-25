@@ -67,7 +67,7 @@ func DecodeString(s string) (string, bool, int) {
 			if n2 == 0 {
 				return s[:n], true, n
 			}
-		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
+		} else if isEmod(r2) && unicode.Is(EmojiModifierBase, r1) {
 			n += n2
 			r2, n2 = utf8.DecodeRuneInString(s[n:])
 			if n2 == 0 {
