@@ -2,6 +2,7 @@ package emoji
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -142,4 +143,13 @@ func Test_Replace(t *testing.T) {
 	if string(replaced) != expected {
 		t.Errorf("ReplaceString error %q not %q", replaced, expected)
 	}
+}
+
+func Benchmark_Find(b *testing.B) {
+	var n int
+	for i := 0; i < b.N; i++ {
+		l := Find([]byte("0⛱️1☎️2🙍‍♂️3👩🏾‍👨🏾‍👦🏾4🇭🇲5🏴󠁧󠁢󠁳󠁣󠁴󠁿6789"), -1)
+		n += len(l)
+	}
+	fmt.Println(n)
 }
