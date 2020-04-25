@@ -42,9 +42,11 @@ func DecodeString(s string) (string, bool, int) {
 	if n1 == 0 {
 		return "", false, 0
 	}
-	if unicode.Is(RegionalIndicator, r1) {
+	u1 := uint32(r1)
+	if RegionalIndicator.R32[0].Lo <= u1 && u1 <= RegionalIndicator.R32[0].Hi {
 		r2, n2 := utf8.DecodeRuneInString(s[n1:])
-		if !unicode.Is(RegionalIndicator, r2) {
+		u2 := uint32(r2)
+		if RegionalIndicator.R32[0].Lo > u2 || u2 > RegionalIndicator.R32[0].Hi {
 			return string(r1), false, n1
 		}
 		return string(r1) + string(r2), true, n1 + n2
@@ -58,18 +60,12 @@ func DecodeString(s string) (string, bool, int) {
 
 		if r2 == emojiVS {
 			n += n2
-			r3, n3 := utf8.DecodeRuneInString(s[n:])
-			if n3 == 0 {
-				return s[:n], true, n
+			if strings.HasPrefix(s[n:], enclosingKeycapS) {
+				n += len(enclosingKeycapS)
 			}
-			if r3 == enclosingKeycap {
-				n += n3
-				r2, n2 = utf8.DecodeRuneInString(s[n:])
-				if n2 == 0 {
-					return s[:n], true, n
-				}
-			} else {
-				r2, n2 = r3, n3
+			r2, n2 = utf8.DecodeRuneInString(s[n:])
+			if n2 == 0 {
+				return s[:n], true, n
 			}
 		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
 			n += n2
@@ -77,8 +73,8 @@ func DecodeString(s string) (string, bool, int) {
 			if n2 == 0 {
 				return s[:n], true, n
 			}
-		} else if r1 == '🏴' && unicode.Is(Tag, r2) {
-			for unicode.Is(Tag, r2) {
+		} else if r1 == '🏴' && isTag(r2) {
+			for isTag(r2) {
 				r2, n2 = utf8.DecodeRuneInString(s[n:])
 				n += n2
 			}

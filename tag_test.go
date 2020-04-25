@@ -11,6 +11,9 @@ func Test_Tag(t *testing.T) {
 		if !unicode.Is(Tag, r) {
 			t.Errorf("%q code %q + 0xE0000 is not counted as a tag", r, c)
 		}
+		if !isTag(r) {
+			t.Errorf("%q code %q + 0xE0000 is not counted as a tag", r, c)
+		}
 	}
 
 	for _, c := range "abcxyz世界\nş123#. 😇🔁" {

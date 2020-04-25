@@ -11,6 +11,9 @@ const emojiVS = 0xFE0F
 const enclosingKeycap = 0x20E3
 const termTag = 0xE007F
 
+var enclosingKeycapS = string(enclosingKeycap)
+var enclosingKeycapB = []byte(enclosingKeycapS)
+
 // PossibleGlyph checks is the given string might be an emoji
 // based on the EBNF from https://www.unicode.org/reports/tr51/#EBNF_and_Regex
 //
@@ -47,9 +50,11 @@ func Decode(b []byte) ([]byte, bool, int) {
 	if n1 == 0 {
 		return nil, false, 0
 	}
-	if unicode.Is(RegionalIndicator, r1) {
+	u1 := uint32(r1)
+	if RegionalIndicator.R32[0].Lo <= u1 && u1 <= RegionalIndicator.R32[0].Hi {
 		r2, n2 := utf8.DecodeRune(b[n1:])
-		if !unicode.Is(RegionalIndicator, r2) {
+		u2 := uint32(r2)
+		if RegionalIndicator.R32[0].Lo > u2 || u2 > RegionalIndicator.R32[0].Hi {
 			return []byte(string(r1)), false, n1
 		}
 		return []byte(string(r1) + string(r2)), true, n1 + n2
@@ -63,18 +68,12 @@ func Decode(b []byte) ([]byte, bool, int) {
 
 		if r2 == emojiVS {
 			n += n2
-			r3, n3 := utf8.DecodeRune(b[n:])
-			if n3 == 0 {
-				return b[:n], true, n
+			if bytes.HasPrefix(b[n:], enclosingKeycapB) {
+				n += len(enclosingKeycapB)
 			}
-			if r3 == enclosingKeycap {
-				n += n3
-				r2, n2 = utf8.DecodeRune(b[n:])
-				if n2 == 0 {
-					return b[:n], true, n
-				}
-			} else {
-				r2, n2 = r3, n3
+			r2, n2 = utf8.DecodeRune(b[n:])
+			if n2 == 0 {
+				return b[:n], true, n
 			}
 		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
 			n += n2
@@ -82,8 +81,8 @@ func Decode(b []byte) ([]byte, bool, int) {
 			if n2 == 0 {
 				return b[:n], true, n
 			}
-		} else if r1 == '🏴' && unicode.Is(Tag, r2) {
-			for unicode.Is(Tag, r2) {
+		} else if r1 == '🏴' && isTag(r2) {
+			for isTag(r2) {
 				r2, n2 = utf8.DecodeRune(b[n:])
 				n += n2
 			}
