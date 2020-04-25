@@ -1,17 +1,12 @@
 package emoji
 
 import (
-	"bytes"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
 
-const zeroWidthJoiner = 0x200D
-const emojiVS = 0xFE0F
-const enclosingKeycap = 0x20E3
-const termTag = 0xE007F
-
-// PossibleGlyph checks is the given string might be an emoji
+// PossibleGlyphString checks is the given string might be an emoji
 // based on the EBNF from https://www.unicode.org/reports/tr51/#EBNF_and_Regex
 //
 // possible_emoji :=
@@ -34,88 +29,88 @@ const termTag = 0xE007F
 //
 // There should not be false negative (glyph wrongly detected as an emoji)
 // There is false positive such inexistant flag indicator
-func PossibleGlyph(b []byte) bool {
-	_, ok, n := Decode(b)
-	return ok && n == len(b)
+func PossibleGlyphString(s string) bool {
+	g, ok, _ := DecodeString(s)
+	return ok && g == s
 }
 
-// Decode returns
+// DecodeString returns
 // - the first complete emoji, true, and it's width in bytes is available
 // - the full non emoji sequence, false and it's width in bytes (might be a rune or multiples in case of malformed emoji)
-func Decode(b []byte) ([]byte, bool, int) {
-	r1, n1 := utf8.DecodeRune(b)
+func DecodeString(s string) (string, bool, int) {
+	r1, n1 := utf8.DecodeRuneInString(s)
 	if n1 == 0 {
-		return nil, false, 0
+		return "", false, 0
 	}
 	if unicode.Is(RegionalIndicator, r1) {
-		r2, n2 := utf8.DecodeRune(b[n1:])
+		r2, n2 := utf8.DecodeRuneInString(s[n1:])
 		if !unicode.Is(RegionalIndicator, r2) {
-			return []byte(string(r1)), false, n1
+			return string(r1), false, n1
 		}
-		return []byte(string(r1) + string(r2)), true, n1 + n2
+		return string(r1) + string(r2), true, n1 + n2
 	}
 	n := n1
 	for unicode.Is(Emoji, r1) {
-		r2, n2 := utf8.DecodeRune(b[n:])
+		r2, n2 := utf8.DecodeRuneInString(s[n:])
 		if n2 == 0 {
-			return b[:n], unicode.Is(ExtendedPictographic, r1), n
+			return s[:n], unicode.Is(ExtendedPictographic, r1), n
 		}
 
 		if r2 == emojiVS {
 			n += n2
-			r3, n3 := utf8.DecodeRune(b[n:])
+			r3, n3 := utf8.DecodeRuneInString(s[n:])
 			if n3 == 0 {
-				return b[:n], true, n
+				return s[:n], true, n
 			}
 			if r3 == enclosingKeycap {
 				n += n3
-				r2, n2 = utf8.DecodeRune(b[n:])
+				r2, n2 = utf8.DecodeRuneInString(s[n:])
 				if n2 == 0 {
-					return b[:n], true, n
+					return s[:n], true, n
 				}
 			} else {
 				r2, n2 = r3, n3
 			}
 		} else if unicode.Is(EmojiModifier, r2) && unicode.Is(EmojiModifierBase, r1) {
 			n += n2
-			r2, n2 = utf8.DecodeRune(b[n:])
+			r2, n2 = utf8.DecodeRuneInString(s[n:])
 			if n2 == 0 {
-				return b[:n], true, n
+				return s[:n], true, n
 			}
 		} else if unicode.Is(Tag, r2) && r1 == '🏴' {
 			for unicode.Is(Tag, r2) {
-				r2, n2 = utf8.DecodeRune(b[n:])
+				r2, n2 = utf8.DecodeRuneInString(s[n:])
 				n += n2
 			}
 			if r2 != termTag {
-				return b[:n], false, n
+				return s[:n], false, n
 			}
-			r2, n2 = utf8.DecodeRune(b[n:])
+			r2, n2 = utf8.DecodeRuneInString(s[n:])
 			if n2 == 0 {
-				return b[:n], true, n
+				return s[:n], true, n
 			}
 		}
 
 		if r2 != zeroWidthJoiner {
-			return b[:n], true, n
+			return s[:n], true, n
 		}
 		n += n2
 
-		r1, n1 = utf8.DecodeRune(b[n:])
+		r1, n1 = utf8.DecodeRuneInString(s[n:])
 		n += n1
 	}
-	return b[:n], false, n
+	return s[:n], false, n
 }
 
-// Find returns the n first emoji in b
+// FindString returns the n first emoji in s
 // of all of thems if max == -1
-func Find(b []byte, max int) [][]byte {
-	emojis := [][]byte{}
+func FindString(s string, max int) []string {
+	emojis := []string{}
 	if max == 0 {
 		return emojis
 	}
 	for {
-		g, ok, n := Decode(b)
+		g, ok, n := DecodeString(s)
 		if n == 0 {
 			break
 		}
@@ -125,38 +120,38 @@ func Find(b []byte, max int) [][]byte {
 				return emojis
 			}
 		}
-		b = b[n:]
+		s = s[n:]
 	}
 	return emojis
 }
 
-// Replace replace the n first all emoji with f(b)
+// ReplaceString replace the n first all emoji with f(s)
 // of all of thems if max == -1
-func Replace(b []byte, max int, f func([]byte) []byte) []byte {
+func ReplaceString(s string, max int, f func(string) string) string {
 	if max == 0 {
-		return b
+		return s
 	}
-	if len(Find(b, max)) == 0 {
-		return b
+	if len(FindString(s, max)) == 0 {
+		return s
 	}
-	var buf bytes.Buffer
+	var b strings.Builder
 	var count int
 	for {
-		g, ok, n := Decode(b)
-		b = b[n:]
+		g, ok, n := DecodeString(s)
+		s = s[n:]
 		if n == 0 {
 			break
 		}
 		if ok {
-			buf.Write(f(g))
+			b.WriteString(f(g))
 			count++
 			if count == max {
-				buf.Write(b)
-				return buf.Bytes()
+				b.WriteString(s)
+				return b.String()
 			}
 		} else {
-			buf.Write(g)
+			b.WriteString(g)
 		}
 	}
-	return buf.Bytes()
+	return b.String()
 }

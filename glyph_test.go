@@ -1,167 +1,35 @@
 package emoji
 
 import (
+	"bytes"
 	"strings"
 	"testing"
-	"unicode"
-
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
 
-var notEmojiTest = []string{
-	"",
-	"a",
-	"😀b",
-	"b😀",
-	"\n",
-	"test",
-	".",
-	"😀👍",
-	"🇧",
-	"😀🏴󠁵󠁳󠁴󠁸󠁿",
-	"A🏴󠁵󠁳󠁴󠁸󠁿",
-	"🏴" + string(0xE0031) + string(0xE004F),
-	"⛰️🏼",
-	"🏥🏼",
-	"🏼",
-	"2",
-	"#",
-	string(0x200D),
-}
-
-var emojiTest = []string{
-	"©️",
-	"⏏️",
-	"😀",
-	"👍",
-	"⛰️",
-	"🏕️",
-	"🏥",
-	"🛢️",
-	"💈",
-	"⛱️",
-	"🪁",
-	"☎️",
-	"💡",
-	"💳",
-	"🖌️",
-	"🔓",
-	"⛓️",
-	"🧴",
-	"🍌",
-	"🍓",
-	"🥔",
-	"🧅",
-	"🥐",
-	"🥞",
-	"🍳",
-	"🍠",
-	"🥃",
-	"🍽️",
-	"😆",
-	"😍",
-	"😚",
-	"😬",
-	"🤯",
-	"💀",
-	"😫",
-	"✌️",
-	"🧠",
-	"🧙",
-	"💇",
-	"🎒",
-	"⛑️",
-	"🥺",
-	"😂",
-	"😊",
-	"🔥",
-
-	"0️⃣",
-
-	"🙍‍♂️",
-	"👩‍🎓",
-	"🧑‍🏫",
-	"🧑‍⚕️",
-	"🧑‍🍳",
-	"👨‍🍳",
-	"👮‍♀️",
-	"🧙‍♂️",
-	"🧟‍♂️",
-	"👩‍🦯",
-	"👨‍👩‍👦‍👦",
-	"👩‍👩‍👧‍👧",
-	"👨‍👧‍👦",
-
-	"👋🏼",
-	"🖖🏿",
-	"🦻🏻",
-	"👨‍🦰",
-	"👩🏼‍🦰",
-	"🧏🏼‍♀️",
-	"🧜🏼‍♀️",
-	"🧝🏼‍♀️",
-	"👯🏼‍♀️",
-	"👩‍❤️‍👩",
-	"👩🏾‍👨🏾‍👦🏾",
-
-	"🏳️",
-	"🎌",
-	"🇧🇳",
-	"🏳️‍⚧️",
-	"🇧🇸",
-	"🇪🇨",
-	"🇭🇲",
-	"🇱🇮",
-	"🇳🇬",
-	"🇸🇬",
-	"🇺🇬",
-	"🏴󠁵󠁳󠁴󠁸󠁿",
-	"🏴󠁧󠁢󠁳󠁣󠁴󠁿",
-}
-
-func Test_PossibleGlyphString(t *testing.T) {
+func Test_PossibleGlyph(t *testing.T) {
 	for _, s := range notEmojiTest {
-		if PossibleGlyphString(s) {
+		if PossibleGlyph([]byte(s)) {
 			t.Errorf("%q returned positive", s)
 		}
 	}
 
 	for _, s := range emojiTest {
-		if !PossibleGlyphString(s) {
+		if !PossibleGlyph([]byte(s)) {
 			t.Errorf("%q returned negative", s)
 		}
-		if PossibleGlyphString(s + "a") {
+		if PossibleGlyph([]byte(s + "a")) {
 			t.Errorf("%q returned positive", s+"a")
 		}
-		if PossibleGlyphString(s + s) {
+		if PossibleGlyph([]byte(s + s)) {
 			t.Errorf("%q returned positive", s+s)
 		}
 	}
 }
 
-func Test_unicodeTransform(t *testing.T) {
-	isMn := func(r rune) bool {
-		return unicode.Is(unicode.Mn, r) && r != emojiVS
-	}
-	tr := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	for _, s := range emojiTest {
-		b := make([]byte, len(s))
-		n, _, _ := tr.Transform(b, []byte(s), true)
-		o := string(b[:n])
-		if o != s {
-			t.Errorf("%q != %q %X != %X", o, s, o, s)
-		}
-		if !PossibleGlyphString(o) {
-			t.Errorf("%q returned negative", o)
-		}
-	}
-}
-
-func Test_DecodeString(t *testing.T) {
+func Test_Decode(t *testing.T) {
 	for _, s := range notEmojiTest {
-		g, ok, n := DecodeString(s)
-		if ok && !PossibleGlyphString(g) {
+		g, ok, n := Decode([]byte(s))
+		if ok && !PossibleGlyph([]byte(g)) {
 			t.Errorf("DecodeString(%q) returned positive %q", s, g)
 		}
 		if len(g) != n {
@@ -170,11 +38,11 @@ func Test_DecodeString(t *testing.T) {
 	}
 
 	for _, s := range emojiTest {
-		g, ok, n := DecodeString(s)
+		g, ok, n := Decode([]byte(s))
 		if !ok {
 			t.Errorf("DecodeString(%q) returned negative %q ", s, g)
 		}
-		if g != s {
+		if string(g) != s {
 			t.Errorf("DecodeString(%q) returned not the full string but %q (%X != %X)", s, g, s, g)
 		}
 		if len(g) != n {
@@ -184,11 +52,11 @@ func Test_DecodeString(t *testing.T) {
 	for _, s1 := range emojiTest {
 		for _, s2 := range append([]string{"aaa", "bbb"}, emojiTest...) {
 			s := s1 + s2
-			g, ok, n := DecodeString(s)
+			g, ok, n := Decode([]byte(s))
 			if !ok {
 				t.Errorf("DecodeString(%q) returned negative %q ", s, g)
 			}
-			if g != s1 {
+			if string(g) != s1 {
 				t.Errorf("DecodeString(%q) returned not the full string but %q (%X != %X)", s, g, s1, g)
 			}
 			if len(g) != n {
@@ -201,65 +69,67 @@ func Test_DecodeString(t *testing.T) {
 	}
 }
 
-func Test_DecodeStringCanReadAText(t *testing.T) {
+func Test_DecodeCanReadAText(t *testing.T) {
 	text := strings.Join(emojiTest, "test phrase")
-	var b strings.Builder
+	var b bytes.Buffer
 	for {
-		g, ok, n := DecodeString(text)
+		g, ok, n := Decode([]byte(text))
 		if n == 0 {
 			break
 		}
 		if ok {
-			b.WriteString(" " + g + " ")
+			b.WriteRune(' ')
+			b.Write(g)
+			b.WriteRune(' ')
 		} else {
-			b.WriteString(g)
+			b.Write(g)
 		}
 		text = text[n:]
 	}
-	emojiWithSpace := make([]string, len(emojiTest))
+	emojiWithSpace := make([][]byte, len(emojiTest))
 	for i, e := range emojiTest {
-		emojiWithSpace[i] = " " + e + " "
+		emojiWithSpace[i] = append(append([]byte(" "), e...), ' ')
 	}
-	if b.String() != strings.Join(emojiWithSpace, "test phrase") {
-		t.Errorf("Got :\n%q\nExpected :\n%q", b.String(), strings.Join(emojiWithSpace, "test phrase"))
+	if bytes.Compare(b.Bytes(), bytes.Join(emojiWithSpace, []byte("test phrase"))) != 0 {
+		t.Errorf("Got :\n%q\nExpected :\n%q", string(b.Bytes()), string(bytes.Join(emojiWithSpace, []byte("test phrase"))))
 	}
 }
 
-func Test_FindString(t *testing.T) {
+func Test_Find(t *testing.T) {
 	text := strings.Join(emojiTest, "test phrase")
 	for n := range emojiTest {
-		found := FindString(text, n)
+		found := Find([]byte(text), n)
 		if len(found) != n {
 			t.Errorf("FindString wrong len %d not %d", len(found), n)
 		}
 		for i, s := range emojiTest[:n] {
-			if s != found[i] {
+			if s != string(found[i]) {
 				t.Errorf("FindString wrong %d result, %q not  %q", i, found[i], s)
 			}
 		}
 	}
-	found := FindString(text, -1)
+	found := Find([]byte(text), -1)
 	if len(found) != len(emojiTest) {
 		t.Errorf("FindString wrong len %d not %d", len(found), len(emojiTest))
 	}
 	for i, s := range emojiTest {
-		if s != found[i] {
+		if s != string(found[i]) {
 			t.Errorf("FindString wrong %d result, %q not  %q", i, found[i], s)
 		}
 	}
 }
 
-func Test_ReplaceString(t *testing.T) {
-	text := strings.Join(emojiTest, "test phrase")
+func Test_Replace(t *testing.T) {
+	text := []byte(strings.Join(emojiTest, "test phrase"))
 	for n := range emojiTest {
-		replaced := ReplaceString(text, n, func(s string) string { return ";" + s + "|" })
+		replaced := Replace(text, n, func(b []byte) []byte { return append(append([]byte(";"), b...), '|') })
 		emojiEdited := make([]string, len(emojiTest))
 		copy(emojiEdited, emojiTest)
 		for i, e := range emojiTest[:n] {
 			emojiEdited[i] = ";" + e + "|"
 		}
 		expected := strings.Join(emojiEdited, "test phrase")
-		if replaced != expected {
+		if string(replaced) != expected {
 			t.Errorf("ReplaceString error %q not %q", replaced, expected)
 		}
 	}
@@ -267,9 +137,9 @@ func Test_ReplaceString(t *testing.T) {
 	for i, e := range emojiTest {
 		emojiEdited[i] = ";" + e + "|"
 	}
-	replaced := ReplaceString(text, -1, func(s string) string { return ";" + s + "|" })
+	replaced := Replace(text, -1, func(b []byte) []byte { return append(append([]byte(";"), b...), '|') })
 	expected := strings.Join(emojiEdited, "test phrase")
-	if replaced != expected {
+	if string(replaced) != expected {
 		t.Errorf("ReplaceString error %q not %q", replaced, expected)
 	}
 }
