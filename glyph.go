@@ -57,7 +57,7 @@ func Decode(b []byte) ([]byte, bool, int) {
 		if RegionalIndicator.R32[0].Lo > u2 || u2 > RegionalIndicator.R32[0].Hi {
 			return []byte(string(r1)), false, n1
 		}
-		return []byte(string(r1) + string(r2)), true, n1 + n2
+		return b[:n1+n2], true, n1 + n2
 	}
 	n := n1
 	for unicode.Is(Emoji, r1) {

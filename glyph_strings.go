@@ -49,7 +49,7 @@ func DecodeString(s string) (string, bool, int) {
 		if RegionalIndicator.R32[0].Lo > u2 || u2 > RegionalIndicator.R32[0].Hi {
 			return string(r1), false, n1
 		}
-		return string(r1) + string(r2), true, n1 + n2
+		return s[:n1+n2], true, n1 + n2
 	}
 	n := n1
 	for unicode.Is(Emoji, r1) {
