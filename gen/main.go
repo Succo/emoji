@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/unicode/rangetable"
 )
 
 const maxR16 = 1 << 16
@@ -94,6 +96,12 @@ func main() {
 			table.R32 = append(table.R32, unicode.Range32{lo, hi, 1})
 		}
 	}
+	emoji = rangetable.Merge(emoji)
+	emojiPresentation = rangetable.Merge(emojiPresentation)
+	emojiModifier = rangetable.Merge(emojiModifier)
+	emojiModifierBase = rangetable.Merge(emojiModifierBase)
+	emojiComponent = rangetable.Merge(emojiComponent)
+	extendedPictographic = rangetable.Merge(extendedPictographic)
 
 	res, err := os.Create("emoji.go")
 	if err != nil {
