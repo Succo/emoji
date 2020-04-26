@@ -2,7 +2,6 @@ package emoji
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -152,5 +151,4 @@ func Benchmark_Findb(b *testing.B) {
 		l := Find(s, -1)
 		n += len(l)
 	}
-	fmt.Println(n)
 }

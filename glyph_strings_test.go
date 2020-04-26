@@ -1,7 +1,6 @@
 package emoji
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"unicode"
@@ -281,5 +280,4 @@ func Benchmark_FindString(b *testing.B) {
 		l := FindString("0⛱️1☎️2🙍‍♂️3👩🏾‍👨🏾‍👦🏾4🇭🇲5🏴󠁧󠁢󠁳󠁣󠁴󠁿6789", -1)
 		n += len(l)
 	}
-	fmt.Println(n)
 }
