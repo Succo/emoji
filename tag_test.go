@@ -6,7 +6,7 @@ import (
 )
 
 func Test_Tag(t *testing.T) {
-	for _, c := range "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
+	for _, c := range "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" {
 		r := c + 0xE0000
 		if !unicode.Is(Tag, r) {
 			t.Errorf("%q code %q + 0xE0000 is not counted as a tag", r, c)
