@@ -6,10 +6,10 @@ import (
 	"unicode/utf8"
 )
 
-const zeroWidthJoiner = 0x200D
-const emojiVS = 0xFE0F
-const enclosingKeycap = 0x20E3
-const termTag = 0xE007F
+const zeroWidthJoiner = rune(0x200D)
+const emojiVS = rune(0xFE0F)
+const enclosingKeycap = rune(0x20E3)
+const termTag = rune(0xE007F)
 
 var enclosingKeycapS = string(enclosingKeycap)
 var enclosingKeycapB = []byte(enclosingKeycapS)

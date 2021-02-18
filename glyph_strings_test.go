@@ -21,13 +21,13 @@ var notEmojiTest = []string{
 	"🇧",
 	"😀🏴󠁵󠁳󠁴󠁸󠁿",
 	"A🏴󠁵󠁳󠁴󠁸󠁿",
-	"🏴" + string(0xE0031) + string(0xE004F),
+	"🏴" + string(rune(0xE0031)) + string(rune(0xE004F)),
 	"⛰️🏼",
 	"🏥🏼",
 	"🏼",
 	"2",
 	"#",
-	string(0x200D),
+	string(rune(0x200D)),
 }
 
 var emojiTest = []string{
